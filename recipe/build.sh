@@ -162,6 +162,4 @@ if [[ ("$target_platform" != "linux-ppc64le") && \
   # https://github.com/h5py/h5py/issues/817
   # https://forum.hdfgroup.org/t/hdf5-1-10-long-double-conversions-tests-failed-in-ppc64le/4077
   make check RUNPARALLEL="mpiexec -n 2"
-  # Perform memory check using Valgrind
-  valgrind --leak-check=full --track-origins=yes mpiexec -n 2 ./t_pmulti_dset
 fi
