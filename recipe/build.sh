@@ -9,7 +9,7 @@ cp $BUILD_PREFIX/share/libtool/build-aux/config.* ./bin
 # hdf5 autogen.sh doesn't find libtool on mac correctly
 export HDF5_LIBTOOL=$BUILD_PREFIX/bin/libtool
 
-HDF5_OPTIONS=
+HDF5_OPTIONS=""
 
 if [[ "$target_platform" == linux-* ]]; then
     # Direct Virtual File System (O_DIRECT)
@@ -88,8 +88,10 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" == 1 && $target_platform == "osx-arm64" ]
   # Do we need this below?
   export hdf5_cv_szlib_can_encode=yes
 
-  HDF5_OPTIONS="${HDF5_OPTIONS} --enable-tests=no"
+  HDF5_OPTIONS="${HDF5_OPTIONS} --enable-tests=no "
 fi
+
+echo "HDF5_OPTIONS ${HDF5_OPTIONS}"
 
 # regen config after patches to configure.ac
 ./autogen.sh
@@ -110,12 +112,15 @@ fi
             --enable-unsupported \
             --enable-hlgiftools=yes \
             --enable-using-memchecker \
+            --enable-logging \
             --enable-static=no \
             --enable-ros3-vfd \
             || (cat config.log; false)
 
 # allow oversubscribing with openmpi in make check
 export OMPI_MCA_rmaps_base_oversubscribe=yes
+# also allow oversubscribing with mvapich
+export MVP_ENABLE_AFFINITY=0
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == 1 ]]; then
   # parentheses ( make this a sub-shell, so env and cwd changes don't persist
@@ -157,4 +162,6 @@ if [[ ("$target_platform" != "linux-ppc64le") && \
   # https://github.com/h5py/h5py/issues/817
   # https://forum.hdfgroup.org/t/hdf5-1-10-long-double-conversions-tests-failed-in-ppc64le/4077
   make check RUNPARALLEL="mpiexec -n 2"
+  # Perform memory check using Valgrind
+  valgrind --leak-check=full --track-origins=yes mpiexec -n 2 ./t_pmulti_dset
 fi
