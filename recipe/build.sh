@@ -87,8 +87,6 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" == 1 && $target_platform == "osx-arm64" ]
   export PAC_FC_ALL_INTEGER_KINDS_SIZEOF="{1,2,4,8,16}"
   # Do we need this below?
   export hdf5_cv_szlib_can_encode=yes
-
-  HDF5_OPTIONS="${HDF5_OPTIONS} --enable-tests=no "
 fi
 
 echo "HDF5_OPTIONS ${HDF5_OPTIONS}"
@@ -115,6 +113,7 @@ echo "HDF5_OPTIONS ${HDF5_OPTIONS}"
             --enable-logging \
             --enable-static=no \
             --enable-ros3-vfd \
+            --enable-tests=no \
             || (cat config.log; false)
 
 # allow oversubscribing with openmpi in make check
